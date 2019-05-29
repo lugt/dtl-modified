@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdio.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif // HAVE_UNISTD_H
@@ -23,24 +24,24 @@ typedef vector< elem > sequence;
 static int create_byte_seq(const char *fs, sequence& seq);
 static int create_byte_seq(const char *fs, sequence& seq)
 {
-    int  fd;
+    FILE *fd;
     int  siz;
     elem buf[BUFSIZ];
-    if ((fd = open(fs, O_RDONLY)) == -1) {
+    if ((fd = fopen(fs, "r")) == NULL) {
         cout << "Opening failed." << endl;
         return -1;
     }
-    while ((siz = read(fd, buf, sizeof(buf))) > 0) {
+    while ((siz = fread(buf, 1, sizeof(buf), fd)) > 0) {
         for (int i=0;i<siz;++i) {
             seq.push_back(buf[i]);
         }
     }
     if (siz < 0) {
-        close(fd);
+        fclose(fd);
         cout << "Read error." << endl;
         return -1;
     }
-    close(fd);
+    fclose(fd);
     return 0;
 }
 
